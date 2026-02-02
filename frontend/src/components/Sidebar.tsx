@@ -5,8 +5,7 @@ import {
   FolderKanban, 
   BookOpen, 
   FileText,
-  GitGraph,
-  Search,
+  Network,
   Plus,
   Settings
 } from 'lucide-react';
@@ -56,7 +55,7 @@ export default function Sidebar({
       <div className="p-4 border-b border-obsidian-800">
         <div className="flex items-center gap-2 mb-4">
           <div className="w-8 h-8 bg-gradient-to-br from-accent-purple to-accent-blue rounded-lg flex items-center justify-center">
-            <GitGraph size={20} className="text-white" />
+            <Network size={20} className="text-white" />
           </div>
           <span className="font-semibold text-lg">Second Brain</span>
         </div>
@@ -77,7 +76,7 @@ export default function Sidebar({
           onClick={onGraphView}
           className={`w-full nav-item mb-2 ${isGraphView ? 'active' : ''}`}
         >
-          <GitGraph size={18} />
+          <Network size={18} />
           <span>Graph View</span>
         </button>
 

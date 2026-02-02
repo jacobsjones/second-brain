@@ -63,7 +63,7 @@ export default function GraphView({ onNodeClick }: GraphViewProps) {
         .distance(100))
       .force('charge', d3.forceManyBody().strength(-300))
       .force('center', d3.forceCenter(width / 2, height / 2))
-      .force('collision', d3.forceCollide().radius(d => d.radius + 5));
+      .force('collision', d3.forceCollide<GraphNode>().radius(d => d.radius + 5));
 
     simulationRef.current = simulation;
 

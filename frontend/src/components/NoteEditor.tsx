@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { 
@@ -8,10 +8,9 @@ import {
   X, 
   Maximize2, 
   Minimize2,
-  Link as LinkIcon,
   Tag
 } from 'lucide-react';
-import { Note, Section, SECTIONS } from '@/types';
+import { Note } from '@/types';
 import { api } from '@/api';
 
 interface NoteEditorProps {
@@ -88,12 +87,12 @@ export default function NoteEditor({ noteId, onNoteUpdated, onClose }: NoteEdito
     setIsEditing(false);
   };
 
-  // Process content to highlight wiki-links and tags in preview
-  const processContent = (content: string) => {
-    return content
-      .replace(/\[\[([^\]]+)\]\]/g, '[[$1]]') // Keep wiki-links as is
-      .replace(/#(\w+)/g, '**#$1**'); // Bold tags
-  };
+  // TODO: Process content to highlight wiki-links and tags in preview
+  // const processContent = (content: string) => {
+  //   return content
+  //     .replace(/\[\[([^\]]+)\]\]/g, '[[$1]]') // Keep wiki-links as is
+  //     .replace(/#(\w+)/g, '**#$1**'); // Bold tags
+  // };
 
   if (!noteId) {
     return (

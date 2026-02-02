@@ -24,11 +24,17 @@ export interface GraphNode {
   title: string;
   section: string;
   radius: number;
+  x?: number;
+  y?: number;
+  vx?: number;
+  vy?: number;
+  fx?: number;
+  fy?: number;
 }
 
 export interface GraphLink {
-  source: string;
-  target: string;
+  source: string | GraphNode;
+  target: string | GraphNode;
 }
 
 export interface GraphData {

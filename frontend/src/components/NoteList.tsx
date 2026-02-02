@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, Clock, Tag, MoreVertical, Trash2, Edit3 } from 'lucide-react';
+import { Search, Clock, Trash2 } from 'lucide-react';
 import { NoteMetadata, Section } from '@/types';
 import { api } from '@/api';
 
