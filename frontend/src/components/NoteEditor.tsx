@@ -321,7 +321,7 @@ export default function NoteEditor({ noteId, onNoteUpdated, onClose }: NoteEdito
                 <span className="text-obsidian-700">•</span>
                 <span className="flex items-center gap-1.5">
                   <LinkIcon size={14} />
-                  {note.linkCount} link{note.linkCount !== 1 ? 's' : ''}
+                  {note.links.length} link{note.links.length !== 1 ? 's' : ''}
                 </span>
                 <span className="text-obsidian-700">•</span>
                 <span>{wordCount} words</span>
