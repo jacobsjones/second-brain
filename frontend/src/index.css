@@ -2,74 +2,517 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;450;500;550;600;700&family=JetBrains+Mono:wght@400;450;500;600&display=swap');
+
+/* ============================================
+   OBSIDIAN-INSPIRED DARK THEME DESIGN SYSTEM
+   ============================================ */
+
+:root {
+  /* Core Obsidian Colors */
+  --obsidian-bg-primary: #0d0d0d;
+  --obsidian-bg-secondary: #141414;
+  --obsidian-bg-tertiary: #1a1a1a;
+  --obsidian-bg-hover: #1f1f1f;
+  --obsidian-bg-active: #262626;
+  --obsidian-bg-elevated: #1e1e1e;
+  
+  /* Text Colors */
+  --obsidian-text-primary: #e6e6e6;
+  --obsidian-text-secondary: #b3b3b3;
+  --obsidian-text-muted: #808080;
+  --obsidian-text-faint: #666666;
+  --obsidian-text-accent: #8b5cf6;
+  
+  /* Accent Colors - Purple/Blue Theme */
+  --accent-purple: #8b5cf6;
+  --accent-purple-light: #a78bfa;
+  --accent-purple-dark: #7c3aed;
+  --accent-blue: #6366f1;
+  --accent-blue-light: #818cf8;
+  --accent-blue-dark: #4f46e5;
+  --accent-gradient: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+  
+  /* Interactive States */
+  --accent-hover: rgba(139, 92, 246, 0.15);
+  --accent-active: rgba(139, 92, 246, 0.25);
+  --accent-glow: 0 0 20px rgba(139, 92, 246, 0.4);
+  --accent-glow-subtle: 0 0 10px rgba(139, 92, 246, 0.2);
+  
+  /* Borders */
+  --border-subtle: #2a2a2a;
+  --border-default: #333333;
+  --border-hover: #404040;
+  --border-accent: rgba(139, 92, 246, 0.3);
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5);
+  --shadow-glow-purple: 0 0 30px rgba(139, 92, 246, 0.15);
+  
+  /* Typography */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  
+  /* Spacing Scale */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  
+  /* Transitions */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-bounce: 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
 
 @layer base {
+  * {
+    @apply border-obsidian-800;
+  }
+  
   html {
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
   
   body {
-    @apply bg-obsidian-950 text-obsidian-100;
+    background-color: var(--obsidian-bg-primary);
+    color: var(--obsidian-text-primary);
     overflow: hidden;
+    font-feature-settings: 'liga' 1, 'calt' 1;
   }
   
+  /* Custom Scrollbar - Obsidian Style */
   ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 10px;
+    height: 10px;
   }
   
   ::-webkit-scrollbar-track {
-    @apply bg-obsidian-900;
+    background: transparent;
   }
   
   ::-webkit-scrollbar-thumb {
-    @apply bg-obsidian-700 rounded-full;
+    background: #333;
+    border-radius: 5px;
+    border: 2px solid var(--obsidian-bg-primary);
   }
   
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-obsidian-600;
+    background: #444;
+  }
+  
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+  
+  /* Selection */
+  ::selection {
+    background: rgba(139, 92, 246, 0.3);
+    color: #fff;
   }
 }
 
 @layer components {
-  .wiki-link {
-    @apply text-accent-purple hover:text-accent-blue cursor-pointer underline decoration-dotted;
-  }
+  /* ============================================
+     NAVIGATION & SIDEBAR COMPONENTS
+     ============================================ */
   
-  .tag {
-    @apply inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-obsidian-800 text-accent-blue hover:bg-obsidian-700 cursor-pointer;
+  .nav-container {
+    @apply bg-obsidian-900/50 backdrop-blur-sm border-r border-obsidian-800;
   }
   
   .nav-item {
-    @apply flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-obsidian-300 hover:bg-obsidian-800 hover:text-obsidian-100 transition-colors;
+    @apply relative flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium;
+    @apply text-obsidian-300 transition-all duration-200;
+    @apply hover:bg-obsidian-800/80 hover:text-obsidian-100;
+  }
+  
+  .nav-item::before {
+    content: '';
+    @apply absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-0 rounded-full bg-accent-purple;
+    transition: all var(--transition-base);
+  }
+  
+  .nav-item:hover::before {
+    @apply h-4;
   }
   
   .nav-item.active {
-    @apply bg-obsidian-800 text-accent-purple;
+    @apply bg-accent-purple/10 text-accent-purple-light;
+    background: linear-gradient(90deg, rgba(139, 92, 246, 0.1) 0%, transparent 100%);
+  }
+  
+  .nav-item.active::before {
+    @apply h-6 rounded-full;
+    box-shadow: 0 0 10px var(--accent-purple);
+  }
+  
+  .nav-section-header {
+    @apply px-3 py-2 text-xs font-semibold uppercase tracking-wider text-obsidian-500;
+  }
+  
+  /* ============================================
+     NOTE LIST COMPONENTS
+     ============================================ */
+  
+  .note-list-container {
+    @apply bg-obsidian-950 border-r border-obsidian-800;
   }
   
   .note-item {
-    @apply p-3 rounded-lg border border-obsidian-800 bg-obsidian-900/50 hover:bg-obsidian-800 cursor-pointer transition-all;
+    @apply relative p-4 rounded-xl border border-transparent;
+    @apply bg-obsidian-900/30 hover:bg-obsidian-800/60;
+    @apply transition-all duration-200 cursor-pointer;
+    @apply hover:border-obsidian-700/50 hover:shadow-sm;
+  }
+  
+  .note-item::before {
+    content: '';
+    @apply absolute left-0 top-1/2 -translate-y-1/2 w-1 h-0 rounded-r-full bg-accent-purple;
+    transition: height var(--transition-base), box-shadow var(--transition-base);
+  }
+  
+  .note-item:hover::before {
+    @apply h-8;
+    box-shadow: 0 0 12px var(--accent-purple);
   }
   
   .note-item.active {
-    @apply border-accent-purple/50 bg-obsidian-800;
+    @apply bg-obsidian-800 border-accent-purple/30;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, rgba(99, 102, 241, 0.04) 100%);
+    box-shadow: 
+      inset 0 1px 1px rgba(255, 255, 255, 0.05),
+      0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+  
+  .note-item.active::before {
+    @apply h-12;
+    box-shadow: 0 0 16px var(--accent-purple), 0 0 32px rgba(139, 92, 246, 0.5);
+  }
+  
+  .note-title {
+    @apply font-medium text-obsidian-200 line-clamp-2 leading-snug;
+  }
+  
+  .note-meta {
+    @apply flex items-center gap-2 text-xs text-obsidian-500 mt-2;
+  }
+  
+  .note-tag {
+    @apply inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium;
+    @apply bg-obsidian-800/80 text-accent-blue-light border border-obsidian-700/50;
+    @apply hover:bg-obsidian-700 hover:border-accent-blue/30 transition-colors;
+  }
+  
+  /* ============================================
+     EDITOR COMPONENTS
+     ============================================ */
+  
+  .editor-container {
+    @apply bg-obsidian-950;
+  }
+  
+  .editor-toolbar {
+    @apply flex items-center justify-between px-4 py-3;
+    @apply bg-obsidian-900/30 border-b border-obsidian-800/60;
+    @apply backdrop-blur-sm;
+  }
+  
+  .editor-content {
+    @apply flex-1 overflow-auto p-8;
+  }
+  
+  .editor-textarea {
+    @apply w-full h-full bg-transparent text-obsidian-100 resize-none outline-none;
+    font-family: var(--font-mono);
+    font-size: 15px;
+    line-height: 1.8;
+    tab-size: 2;
+  }
+  
+  .editor-preview {
+    @apply prose prose-invert prose-lg max-w-none;
+  }
+  
+  .editor-preview h1 {
+    @apply text-3xl font-bold text-obsidian-100 mb-6 pb-2 border-b border-obsidian-800;
+  }
+  
+  .editor-preview h2 {
+    @apply text-2xl font-semibold text-obsidian-200 mt-8 mb-4;
+  }
+  
+  .editor-preview h3 {
+    @apply text-xl font-semibold text-obsidian-200 mt-6 mb-3;
+  }
+  
+  .editor-preview p {
+    @apply text-obsidian-300 leading-relaxed mb-4;
+  }
+  
+  .editor-preview ul, .editor-preview ol {
+    @apply text-obsidian-300 mb-4;
+  }
+  
+  .editor-preview li {
+    @apply mb-1;
+  }
+  
+  .editor-preview blockquote {
+    @apply border-l-4 border-accent-purple/50 pl-4 italic text-obsidian-400 my-4;
+    @apply bg-obsidian-900/30 py-2 pr-4 rounded-r-lg;
+  }
+  
+  .editor-preview code {
+    @apply bg-obsidian-800 text-accent-purple-light px-1.5 py-0.5 rounded text-sm font-mono;
+  }
+  
+  .editor-preview pre {
+    @apply bg-obsidian-900 border border-obsidian-800 rounded-xl p-4 overflow-x-auto;
+  }
+  
+  .editor-preview pre code {
+    @apply bg-transparent text-obsidian-200 p-0;
+  }
+  
+  .editor-preview hr {
+    @apply border-obsidian-800 my-8;
+  }
+  
+  .editor-preview a {
+    @apply text-accent-blue-light hover:text-accent-purple-light underline decoration-accent-blue/30 hover:decoration-accent-purple transition-colors;
+  }
+  
+  /* ============================================
+     WIKI-LINK COMPONENTS
+     ============================================ */
+  
+  .wiki-link {
+    @apply inline-flex items-center px-2 py-0.5 rounded-md text-sm font-medium cursor-pointer;
+    @apply bg-accent-blue/10 text-accent-blue-light border border-accent-blue/30;
+    @apply hover:bg-accent-blue/20 hover:border-accent-blue/50 hover:text-white;
+    @apply transition-all duration-200;
+    text-decoration: none !important;
+  }
+  
+  .wiki-link::before {
+    content: '[[';
+    @apply text-accent-blue/50 mr-0.5;
+  }
+  
+  .wiki-link::after {
+    content: ']]';
+    @apply text-accent-blue/50 ml-0.5;
+  }
+  
+  .wiki-link:hover {
+    box-shadow: 0 0 12px rgba(99, 102, 241, 0.3);
+    transform: translateY(-1px);
+  }
+  
+  /* ============================================
+     BUTTON COMPONENTS
+     ============================================ */
+  
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-medium;
+    @apply transition-all duration-200;
+    @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-obsidian-900;
   }
   
   .btn-primary {
-    @apply px-4 py-2 bg-accent-purple hover:bg-accent-purple/90 text-white rounded-lg font-medium transition-colors;
+    @apply btn;
+    background: linear-gradient(135deg, var(--accent-purple) 0%, var(--accent-blue) 100%);
+    @apply text-white shadow-lg;
+    box-shadow: 0 4px 14px rgba(139, 92, 246, 0.4);
+  }
+  
+  .btn-primary:hover {
+    background: linear-gradient(135deg, var(--accent-purple-light) 0%, var(--accent-blue-light) 100%);
+    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.5);
+    transform: translateY(-1px);
+  }
+  
+  .btn-primary:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(139, 92, 246, 0.4);
   }
   
   .btn-secondary {
-    @apply px-4 py-2 bg-obsidian-800 hover:bg-obsidian-700 text-obsidian-200 rounded-lg font-medium transition-colors;
+    @apply btn bg-obsidian-800 text-obsidian-200 border border-obsidian-700;
+    @apply hover:bg-obsidian-700 hover:border-obsidian-600 hover:text-obsidian-100;
   }
+  
+  .btn-ghost {
+    @apply btn bg-transparent text-obsidian-400;
+    @apply hover:bg-obsidian-800/60 hover:text-obsidian-200;
+  }
+  
+  .btn-icon {
+    @apply inline-flex items-center justify-center p-2 rounded-lg;
+    @apply text-obsidian-400 hover:text-obsidian-200 hover:bg-obsidian-800/60;
+    @apply transition-all duration-200;
+  }
+  
+  .btn-icon.active {
+    @apply text-accent-purple bg-accent-purple/10;
+  }
+  
+  /* ============================================
+     FORM COMPONENTS
+     ============================================ */
   
   .input {
-    @apply w-full px-3 py-2 bg-obsidian-900 border border-obsidian-700 rounded-lg text-obsidian-100 placeholder-obsidian-500 focus:outline-none focus:border-accent-purple focus:ring-1 focus:ring-accent-purple;
+    @apply w-full px-4 py-2.5 bg-obsidian-900/50 border border-obsidian-700 rounded-xl;
+    @apply text-obsidian-100 placeholder-obsidian-500;
+    @apply focus:outline-none focus:border-accent-purple/50 focus:ring-2 focus:ring-accent-purple/20;
+    @apply transition-all duration-200;
   }
   
+  .input:focus {
+    background: rgba(139, 92, 246, 0.05);
+  }
+  
+  /* ============================================
+     GRAPH VISUALIZATION
+     ============================================ */
+  
+  .graph-container {
+    @apply relative w-full h-full bg-gradient-to-br from-obsidian-950 via-obsidian-900 to-obsidian-950;
+  }
+  
+  .graph-controls {
+    @apply absolute top-4 right-4 flex flex-col gap-2 z-20;
+  }
+  
+  .graph-control-btn {
+    @apply p-2.5 bg-obsidian-900/80 backdrop-blur border border-obsidian-700/50 rounded-xl;
+    @apply text-obsidian-300 hover:text-white hover:bg-obsidian-800;
+    @apply hover:border-accent-purple/30 transition-all duration-200;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+  
+  .graph-control-btn:hover {
+    box-shadow: 0 4px 16px rgba(139, 92, 246, 0.2);
+  }
+  
+  .graph-legend {
+    @apply absolute bottom-4 left-4 bg-obsidian-900/90 backdrop-blur-xl border border-obsidian-700/50;
+    @apply rounded-2xl p-4 z-20;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  }
+  
+  .graph-info {
+    @apply absolute top-4 left-4 bg-obsidian-900/90 backdrop-blur-xl border border-obsidian-700/50;
+    @apply rounded-2xl p-5 z-20 max-w-xs;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  }
+  
+  /* Graph Node Glow Effects */
+  .graph-node {
+    filter: drop-shadow(0 0 8px currentColor);
+    transition: filter 0.3s ease;
+  }
+  
+  .graph-node:hover {
+    filter: drop-shadow(0 0 16px currentColor) drop-shadow(0 0 32px currentColor);
+  }
+  
+  /* ============================================
+     MODAL COMPONENTS
+     ============================================ */
+  
+  .modal-overlay {
+    @apply fixed inset-0 bg-black/60 backdrop-blur-sm z-50;
+    @apply flex items-center justify-center;
+  }
+  
+  .modal-content {
+    @apply bg-obsidian-900 border border-obsidian-700 rounded-2xl p-6;
+    @apply shadow-2xl max-w-md w-full mx-4;
+    box-shadow: 
+      0 24px 48px rgba(0, 0, 0, 0.5),
+      0 0 0 1px rgba(139, 92, 246, 0.1);
+  }
+  
+  /* ============================================
+     UTILITY COMPONENTS
+     ============================================ */
+  
   .resize-handle {
-    @apply w-1 hover:w-2 bg-transparent hover:bg-accent-purple/50 cursor-col-resize transition-all;
+    @apply w-1 h-full cursor-col-resize bg-transparent hover:bg-accent-purple/30;
+    @apply transition-colors duration-200;
+  }
+  
+  .resize-handle:hover {
+    box-shadow: 0 0 8px rgba(139, 92, 246, 0.5);
+  }
+  
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+  
+  .badge-purple {
+    @apply badge bg-accent-purple/15 text-accent-purple-light border border-accent-purple/30;
+  }
+  
+  .badge-blue {
+    @apply badge bg-accent-blue/15 text-accent-blue-light border border-accent-blue/30;
+  }
+  
+  /* Section color badges */
+  .section-ideas { @apply text-amber-400; }
+  .section-trading { @apply text-emerald-400; }
+  .section-projects { @apply text-sky-400; }
+  .section-journal { @apply text-rose-400; }
+  .section-articles { @apply text-violet-400; }
+}
+
+@layer utilities {
+  /* Text gradient utility */
+  .text-gradient {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, var(--accent-purple-light) 0%, var(--accent-blue-light) 100%);
+  }
+  
+  /* Glow utilities */
+  .glow-purple {
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+  }
+  
+  .glow-purple-intense {
+    box-shadow: 0 0 40px rgba(139, 92, 246, 0.5);
+  }
+  
+  /* Glass effect */
+  .glass {
+    @apply bg-obsidian-900/70 backdrop-blur-xl border border-obsidian-700/50;
+  }
+  
+  /* Animation utilities */
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-out;
+  }
+  
+  .animate-slide-in {
+    animation: slideIn 0.3s ease-out;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 }

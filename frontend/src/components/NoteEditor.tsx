@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { 
@@ -8,9 +8,14 @@ import {
   X, 
   Maximize2, 
   Minimize2,
-  Tag
+  Tag,
+  Clock,
+  Hash,
+  Link as LinkIcon,
+  MoreVertical,
+  SplitSquareHorizontal
 } from 'lucide-react';
-import { Note } from '@/types';
+import { Note, SECTION_COLORS } from '@/types';
 import { api } from '@/api';
 
 interface NoteEditorProps {
@@ -19,19 +24,48 @@ interface NoteEditorProps {
   onClose?: () => void;
 }
 
-// Custom wiki-link component for markdown
+// WikiLink component for rendered markdown
 const WikiLink = ({ href, children }: { href: string; children: React.ReactNode }) => {
+  const handleClick = () => {
+    window.dispatchEvent(new CustomEvent('open-wiki-link', { detail: href }));
+  };
+
   return (
-    <span 
+    <button 
+      onClick={handleClick}
       className="wiki-link"
-      onClick={() => {
-        // Emit event to open linked note
-        window.dispatchEvent(new CustomEvent('open-wiki-link', { detail: href }));
-      }}
     >
       {children}
-    </span>
+    </button>
   );
+};
+
+// Custom renderer for ReactMarkdown to handle wiki-links
+const MarkdownComponents = {
+  a: ({ href, children }: { href?: string; children?: React.ReactNode }) => {
+    if (href?.startsWith('[[') && href?.endsWith(']]')) {
+      const linkContent = href.slice(2, -2);
+      return <WikiLink href={linkContent}>{linkContent}</WikiLink>;
+    }
+    return <a href={href} className="text-accent-blue-light hover:underline">{children}</a>;
+  },
+  code: ({ inline, className, children, ...props }: { inline?: boolean; className?: string; children?: React.ReactNode }) => {
+    const match = /language-(\w+)/.exec(className || '');
+    return !inline ? (
+      <div className="relative group">
+        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+          <span className="text-xs text-obsidian-500 font-mono">{match?.[1] || 'code'}</span>
+        </div>
+        <pre className={className} {...props}>
+          <code className={className}>{children}</code>
+        </pre>
+      </div>
+    ) : (
+      <code className="bg-obsidian-800 text-accent-purple-light px-1.5 py-0.5 rounded text-sm font-mono" {...props}>
+        {children}
+      </code>
+    );
+  }
 };
 
 export default function NoteEditor({ noteId, onNoteUpdated, onClose }: NoteEditorProps) {
@@ -42,6 +76,7 @@ export default function NoteEditor({ noteId, onNoteUpdated, onClose }: NoteEdito
   const [editedTitle, setEditedTitle] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPreview, setShowPreview] = useState(true);
+  const [wordCount, setWordCount] = useState(0);
 
   useEffect(() => {
     if (noteId) {
@@ -51,6 +86,12 @@ export default function NoteEditor({ noteId, onNoteUpdated, onClose }: NoteEdito
       setIsEditing(false);
     }
   }, [noteId]);
+
+  useEffect(() => {
+    // Calculate word count
+    const words = editedContent.trim().split(/\s+/).filter(w => w.length > 0).length;
+    setWordCount(words);
+  }, [editedContent]);
 
   const loadNote = async (id: string) => {
     try {
@@ -87,83 +128,131 @@ export default function NoteEditor({ noteId, onNoteUpdated, onClose }: NoteEdito
     setIsEditing(false);
   };
 
-  // TODO: Process content to highlight wiki-links and tags in preview
-  // const processContent = (content: string) => {
-  //   return content
-  //     .replace(/\[\[([^\]]+)\]\]/g, '[[$1]]') // Keep wiki-links as is
-  //     .replace(/#(\w+)/g, '**#$1**'); // Bold tags
-  // };
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+      e.preventDefault();
+      if (isEditing) {
+        handleSave();
+      }
+    }
+    if (e.key === 'Escape' && isEditing) {
+      handleCancel();
+    }
+  }, [isEditing, editedContent, editedTitle]);
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleKeyDown]);
+
+  const formatDate = (dateStr: string) => {
+    return new Date(dateStr).toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
 
   if (!noteId) {
     return (
-      <div className="w-full h-full flex items-center justify-center text-obsidian-500">
-        <div className="text-center">
-          <Edit3 size={48} className="mx-auto mb-4 opacity-50" />
-          <p>Select a note to view or edit</p>
+      <div className="w-full h-full flex flex-col items-center justify-center text-content-muted bg-surface-primary">
+        <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-accent-purple/10 to-accent-blue/10 flex items-center justify-center mb-6">
+          <Edit3 size={40} className="text-accent-purple/50" />
         </div>
+        <p className="text-lg font-medium text-obsidian-300 mb-2">Select a note to view or edit</p>
+        <p className="text-sm text-obsidian-600">Choose from the list or create a new note</p>
       </div>
     );
   }
 
   if (loading || !note) {
     return (
-      <div className="w-full h-full flex items-center justify-center text-obsidian-500">
-        Loading...
+      <div className="w-full h-full flex flex-col items-center justify-center text-content-muted bg-surface-primary">
+        <div className="w-10 h-10 border-2 border-accent-purple/30 border-t-accent-purple rounded-full animate-spin mb-4" />
+        <span className="text-sm">Loading note...</span>
       </div>
     );
   }
 
+  const sectionColor = SECTION_COLORS[note.section as keyof typeof SECTION_COLORS] || '#8b5cf6';
+
   return (
-    <div className={`w-full h-full bg-obsidian-950 flex flex-col ${isFullscreen ? 'fixed inset-0 z-50' : ''}`}>
+    <div className={`w-full h-full bg-surface-primary flex flex-col ${isFullscreen ? 'fixed inset-0 z-50' : ''}`}>
       {/* Toolbar */}
-      <div className="flex items-center justify-between p-3 border-b border-obsidian-800">
-        <div className="flex items-center gap-2">
+      <div className="editor-toolbar">
+        {/* Left side - Title & Info */}
+        <div className="flex items-center gap-4 flex-1 min-w-0">
           {isEditing ? (
             <input
               type="text"
               value={editedTitle}
               onChange={(e) => setEditedTitle(e.target.value)}
-              className="input font-semibold text-lg bg-transparent border-0 px-0 focus:ring-0"
+              className="input font-semibold text-xl bg-transparent border-0 px-0 focus:ring-0 w-full max-w-md"
               placeholder="Note title..."
             />
           ) : (
-            <h1 className="text-lg font-semibold">{note.title}</h1>
+            <div className="flex items-center gap-3">
+              <h1 className="text-xl font-bold text-obsidian-100 truncate">{note.title || 'Untitled'}</h1>
+              <span 
+                className="badge flex items-center gap-1.5"
+                style={{ 
+                  backgroundColor: `${sectionColor}15`,
+                  color: sectionColor,
+                  borderColor: `${sectionColor}30`
+                }}
+              >
+                <span 
+                  className="w-1.5 h-1.5 rounded-full"
+                  style={{ backgroundColor: sectionColor }}
+                />
+                {note.section}
+              </span>
+            </div>
           )}
-          <span className="text-xs text-obsidian-500 bg-obsidian-900 px-2 py-1 rounded">
-            {note.section}
-          </span>
         </div>
         
+        {/* Right side - Actions */}
         <div className="flex items-center gap-1">
           {isEditing ? (
             <>
-              <button onClick={handleSave} className="btn-primary flex items-center gap-1 text-sm">
-                <Save size={14} />
+              <button 
+                onClick={() => setShowPreview(!showPreview)}
+                className={`btn-icon ${showPreview ? 'active' : ''}`}
+                title={showPreview ? 'Hide preview' : 'Show preview'}
+              >
+                <SplitSquareHorizontal size={18} />
+              </button>
+              <div className="w-px h-6 bg-obsidian-800 mx-2" />
+              <button 
+                onClick={handleSave} 
+                className="btn-primary text-sm"
+              >
+                <Save size={16} />
                 Save
               </button>
-              <button onClick={handleCancel} className="btn-secondary text-sm">
-                <X size={14} />
+              <button 
+                onClick={handleCancel} 
+                className="btn-secondary text-sm"
+              >
+                <X size={16} />
+                Cancel
               </button>
             </>
           ) : (
             <>
               <button 
-                onClick={() => setShowPreview(!showPreview)}
-                className={`p-2 rounded-lg ${showPreview ? 'text-accent-purple' : 'text-obsidian-400'} hover:bg-obsidian-800`}
-                title={showPreview ? 'Hide preview' : 'Show preview'}
-              >
-                <Eye size={18} />
-              </button>
-              <button 
                 onClick={() => setIsEditing(true)}
-                className="p-2 rounded-lg text-obsidian-400 hover:bg-obsidian-800"
-                title="Edit"
+                className="btn-primary text-sm"
               >
-                <Edit3 size={18} />
+                <Edit3 size={16} />
+                Edit
               </button>
+              <div className="w-px h-6 bg-obsidian-800 mx-2" />
               <button 
                 onClick={() => setIsFullscreen(!isFullscreen)}
-                className="p-2 rounded-lg text-obsidian-400 hover:bg-obsidian-800"
+                className="btn-icon"
                 title={isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
               >
                 {isFullscreen ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
@@ -171,7 +260,7 @@ export default function NoteEditor({ noteId, onNoteUpdated, onClose }: NoteEdito
               {onClose && (
                 <button 
                   onClick={onClose}
-                  className="p-2 rounded-lg text-obsidian-400 hover:bg-obsidian-800"
+                  className="btn-icon"
                 >
                   <X size={18} />
                 </button>
@@ -181,74 +270,87 @@ export default function NoteEditor({ noteId, onNoteUpdated, onClose }: NoteEdito
         </div>
       </div>
 
-      {/* Content */}
+      {/* Content Area */}
       <div className="flex-1 overflow-hidden">
         {isEditing ? (
           <div className="h-full flex">
-            <textarea
-              value={editedContent}
-              onChange={(e) => setEditedContent(e.target.value)}
-              className="flex-1 bg-obsidian-950 text-obsidian-100 p-4 resize-none focus:outline-none font-mono text-sm leading-relaxed"
-              placeholder="Start writing in markdown..."
-              spellCheck={false}
-            />
+            {/* Editor */}
+            <div className={`${showPreview ? 'flex-1' : 'w-full'} h-full flex flex-col`}>
+              <textarea
+                value={editedContent}
+                onChange={(e) => setEditedContent(e.target.value)}
+                className="editor-textarea flex-1 p-6"
+                placeholder="# Start writing...\n\nUse [[Wiki Links]] to connect notes.\nUse #tags to categorize."
+                spellCheck={false}
+              />
+              {/* Editor footer */}
+              <div className="px-6 py-2 border-t border-obsidian-800 bg-obsidian-900/30 flex items-center justify-between text-xs text-obsidian-500">
+                <span>{wordCount} words</span>
+                <span className="flex items-center gap-4">
+                  <span>Ctrl+S to save</span>
+                  <span>Esc to cancel</span>
+                </span>
+              </div>
+            </div>
+            
+            {/* Preview */}
             {showPreview && (
-              <div className="flex-1 border-l border-obsidian-800 p-4 overflow-y-auto">
-                <div className="prose prose-invert prose-sm max-w-none">
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                    {editedContent}
-                  </ReactMarkdown>
+              <div className="flex-1 border-l border-obsidian-800 bg-surface-primary overflow-y-auto">
+                <div className="p-8">
+                  <div className="prose prose-invert prose-lg max-w-none editor-preview">
+                    <ReactMarkdown 
+                      remarkPlugins={[remarkGfm]}
+                      components={MarkdownComponents}
+                    >
+                      {editedContent}
+                    </ReactMarkdown>
+                  </div>
                 </div>
               </div>
             )}
           </div>
         ) : (
-          <div className="h-full overflow-y-auto p-6">
-            <div className="prose prose-invert prose-lg max-w-none">
-              <ReactMarkdown
-                remarkPlugins={[remarkGfm]}
-                components={{
-                  text: ({ children }) => {
-                    if (typeof children === 'string') {
-                      // Highlight wiki-links
-                      const parts = children.split(/(\[\[[^\]]+\]\])/g);
-                      return (
-                        <>
-                          {parts.map((part, i) => {
-                            const match = part.match(/^\[\[([^\]]+)\]\]$/);
-                            if (match) {
-                              return (
-                                <WikiLink key={i} href={match[1]}>
-                                  {match[1]}
-                                </WikiLink>
-                              );
-                            }
-                            return <span key={i}>{part}</span>;
-                          })}
-                        </>
-                      );
-                    }
-                    return <>{children}</>;
-                  }
-                }}
-              >
-                {note.content}
-              </ReactMarkdown>
-            </div>
-            
-            {/* Tags footer */}
-            {note.tags.length > 0 && (
-              <div className="mt-8 pt-4 border-t border-obsidian-800">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <Tag size={14} className="text-obsidian-500" />
-                  {note.tags.map((tag) => (
-                    <span key={tag} className="tag">
-                      #{tag}
-                    </span>
-                  ))}
-                </div>
+          <div className="h-full overflow-y-auto">
+            <div className="max-w-4xl mx-auto p-8">
+              {/* Note metadata header */}
+              <div className="flex items-center gap-4 text-sm text-content-muted mb-6 pb-6 border-b border-obsidian-800">
+                <span className="flex items-center gap-1.5">
+                  <Clock size={14} />
+                  Updated {formatDate(note.updatedAt)}
+                </span>
+                <span className="text-obsidian-700">•</span>
+                <span className="flex items-center gap-1.5">
+                  <LinkIcon size={14} />
+                  {note.linkCount} link{note.linkCount !== 1 ? 's' : ''}
+                </span>
+                <span className="text-obsidian-700">•</span>
+                <span>{wordCount} words</span>
               </div>
-            )}
+
+              {/* Rendered content */}
+              <div className="prose prose-invert prose-lg max-w-none editor-preview">
+                <ReactMarkdown 
+                  remarkPlugins={[remarkGfm]}
+                  components={MarkdownComponents}
+                >
+                  {note.content}
+                </ReactMarkdown>
+              </div>
+              
+              {/* Tags footer */}
+              {note.tags.length > 0 && (
+                <div className="mt-12 pt-6 border-t border-obsidian-800">
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <Tag size={16} className="text-accent-purple-light" />
+                    {note.tags.map((tag) => (
+                      <span key={tag} className="wiki-link">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>
