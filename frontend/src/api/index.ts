@@ -1,61 +1,54 @@
 import { Note, NoteMetadata, GraphData } from '@/types';
+import {
+  getAllNotes,
+  getNoteById,
+  createNote,
+  updateNote,
+  deleteNote,
+  searchNotes,
+  getNotesMetadata,
+  getGraphData,
+} from '@/services/storage';
+import { seedDatabase } from '@/services/seed';
 
-const API_BASE = '/api';
+// Seed database on first load
+seedDatabase();
 
+// API wrapper using localStorage instead of HTTP requests
+// Maintains async interface for compatibility with existing components
 export const api = {
   // Notes
   async getNotes(section?: string): Promise<NoteMetadata[]> {
-    const url = section 
-      ? `${API_BASE}/notes?section=${encodeURIComponent(section)}`
-      : `${API_BASE}/notes`;
-    const res = await fetch(url);
-    if (!res.ok) throw new Error('Failed to fetch notes');
-    return res.json();
+    return getNotesMetadata(section);
   },
 
   async getNote(id: string): Promise<Note> {
-    const res = await fetch(`${API_BASE}/notes/${id}`);
-    if (!res.ok) throw new Error('Failed to fetch note');
-    return res.json();
+    const note = getNoteById(id);
+    if (!note) throw new Error('Note not found');
+    return note;
   },
 
   async createNote(section: string, title: string, content: string): Promise<Note> {
-    const res = await fetch(`${API_BASE}/notes`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ section, title, content }),
-    });
-    if (!res.ok) throw new Error('Failed to create note');
-    return res.json();
+    return createNote(section, title, content);
   },
 
   async updateNote(id: string, title: string, content: string): Promise<Note> {
-    const res = await fetch(`${API_BASE}/notes/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title, content }),
-    });
-    if (!res.ok) throw new Error('Failed to update note');
-    return res.json();
+    const note = updateNote(id, { title, content });
+    if (!note) throw new Error('Failed to update note');
+    return note;
   },
 
   async deleteNote(id: string): Promise<void> {
-    const res = await fetch(`${API_BASE}/notes/${id}`, {
-      method: 'DELETE',
-    });
-    if (!res.ok) throw new Error('Failed to delete note');
+    const success = deleteNote(id);
+    if (!success) throw new Error('Failed to delete note');
   },
 
   async searchNotes(query: string): Promise<Note[]> {
-    const res = await fetch(`${API_BASE}/notes/search?q=${encodeURIComponent(query)}`);
-    if (!res.ok) throw new Error('Search failed');
-    return res.json();
+    return searchNotes(query);
   },
 
   // Graph
   async getGraphData(): Promise<GraphData> {
-    const res = await fetch(`${API_BASE}/graph`);
-    if (!res.ok) throw new Error('Failed to fetch graph data');
-    return res.json();
+    return getGraphData();
   },
 };

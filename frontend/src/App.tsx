@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Section, NoteMetadata } from '@/types';
+import { api } from '@/api';
 import Sidebar from '@/components/Sidebar';
 import NoteList from '@/components/NoteList';
 import NoteEditor from '@/components/NoteEditor';
@@ -25,9 +26,8 @@ export default function App() {
       const title = e.detail;
       try {
         // Search for note with this title
-        const res = await fetch(`/api/notes/search?q=${encodeURIComponent(title)}`);
-        const notes = await res.json();
-        const matchingNote = notes.find((n: NoteMetadata) => 
+        const notes = await api.searchNotes(title);
+        const matchingNote = notes.find((n) => 
           n.title.toLowerCase() === title.toLowerCase()
         );
         if (matchingNote) {
