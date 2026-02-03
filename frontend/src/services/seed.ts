@@ -4,6 +4,113 @@ import { createNote } from './storage';
 export const seedData = [
   {
     section: 'Ideas',
+    title: 'UK Director Research',
+    content: `# UK Director: What You Should Know
+
+## Your Situation
+- **Role:** Director of brother's UK Ltd company (recruitment firm)
+- **Brother:** Moving to Dubai, remains shareholder
+- **You:** Director with bank access, **NO equity**
+
+## The Bottom Line
+**High-risk, low-reward position.** You can be held **personally liable** for company debts even without owning shares. You get all the duties and risks, none of the ownership benefits.
+
+## Your 7 Legal Duties (Companies Act 2006)
+
+| Duty | What It Means |
+|------|---------------|
+| **Act within powers** | Follow company rules; don't overstep |
+| **Promote company success** | Act for the COMPANY, not your brother |
+| **Exercise independent judgment** | Think for yourself; don't just follow orders |
+| **Exercise reasonable care** | Meet standards of a competent director |
+| **Avoid conflicts** | Declare any interests; no secret benefits |
+| **No third-party benefits** | No bribes, gifts, or side deals |
+| **Declare interests** | Tell the board about any personal stakes |
+
+**Key Point:** These duties are to the COMPANY, not to your brother as shareholder.
+
+## Personal Liability Risks (Even Without Shares)
+
+### 1. Wrongful Trading
+If the company goes bust and you kept trading when you should have stopped → **personal contribution to debts required**
+
+### 2. Fraudulent Trading  
+If you knowingly carried on business to defraud creditors → **unlimited liability + up to 10 years prison**
+
+### 3. HMRC Liabilities
+If National Insurance or PAYE unpaid → **Personal Liability Notice** can make you personally pay
+
+### 4. Personal Guarantees
+If you personally guaranteed any company debts (common for bank loans) → **your house/assets at risk**
+
+## Bank Access = Big Responsibility
+
+As a bank signatory, you have:
+- **Fiduciary duties** over company funds
+- **Money laundering liability** if suspicious transactions go through
+- **Personal liability** for payments made after the "insolvency point of no return"
+
+## Tax Disadvantage
+
+Without shares:
+- Only salary income (higher tax)
+- Can't receive dividends (lower tax)
+- Must pay NICs on all income
+- No flexibility to optimize
+
+## Family Business Conflicts
+
+The director-shareholder split creates tension around:
+- **Compensation** — He wants dividends (tax efficient), you need salary (tax heavy)
+- **Information** — Who gets what info?
+- **Control** — Who makes final decisions?
+- **Exit** — What if you want out?
+
+## Dubai-UK Structure Risks
+
+If your brother manages from Dubai:
+- **Dual tax residency risk**
+- **Exit charges** if company deemed UAE-resident
+- **Documentation burden** to prove UK-based decision-making
+
+## Red Flags to Watch For
+
+🚩 HMRC arrears or late filings
+🚩 Unexplained transactions or missing records  
+🚩 Being excluded from key decisions
+🚩 No Director & Officer (D&O) insurance
+🚩 Brother acting as "shadow director" from Dubai
+🚩 Pressure to sign documents without reading
+
+## Protective Measures
+
+Before accepting:
+1. **Shareholders' Agreement** — Defines roles, decision rights, exit terms
+2. **Director's Service Contract** — Salary, duties, notice period
+3. **D&O Insurance** — Covers legal costs if sued as director
+4. **Regular Financial Updates** — Monthly accounts, not just annual
+5. **Independent Accountant** — Someone YOU trust reviewing books
+6. **No Personal Guarantees** — Don't sign them if possible
+
+## Questions to Ask Your Brother
+
+1. "Why am I becoming director instead of just an employee?"
+2. "What happens if we disagree on company decisions?"
+3. "What's my compensation package and how is it set?"
+4. "What insurance covers me if something goes wrong?"
+5. "How do I exit this role if I want to?"
+
+## Summary
+
+**Your position:** All the risk, none of the ownership.
+
+**Not saying no** — just saying: Get it in writing. Know what you're signing up for.
+
+#research #legal #director #family-business #uk-company #advice`,
+  },
+
+  {
+    section: 'Ideas',
     title: 'AI Voice Coach',
     content: `# AI Voice Coach
 
